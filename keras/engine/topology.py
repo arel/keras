@@ -235,6 +235,7 @@ class Layer(object):
         non_trainable_weights: list of variables.
         regularizers: list of regularizers.
         constraints: dict mapping weights to constraints.
+        multipliers: dict mapping weights to learning rates multipliers.
 
     # Methods
         call(x, mask=None): where the layer's logic lives.
@@ -292,6 +293,8 @@ class Layer(object):
             self.regularizers = []
         if not hasattr(self, 'constraints'):
             self.constraints = {}  # dict {tensor: constraint instance}
+        if not hasattr(self, 'multipliers'):
+            self.multipliers = {}  # dict {tensor: multiplier value}
         self.built = False
 
         # these properties should be set by the user via keyword arguments.
@@ -964,6 +967,7 @@ class InputLayer(Layer):
         self.non_trainable_weights = []
         self.regularizers = []
         self.constraints = {}
+        self.multipliers = {}
 
         if not name:
             prefix = 'input'
@@ -1155,6 +1159,7 @@ class Merge(Layer):
         self.inbound_nodes = []
         self.outbound_nodes = []
         self.constraints = {}
+        self.multipliers = {}
         self.regularizers = []
         self.trainable_weights = []
         self.non_trainable_weights = []
@@ -1567,6 +1572,7 @@ class Container(Layer):
         non_trainable_weights (list of variables)
         regularizers (list of regularizers)
         constraints (list of tuples (weight, constraint))
+        multipliers (list of tuples (weight, learning_rate_multiplier))
 
     # Methods
         summary
@@ -1953,6 +1959,17 @@ class Container(Layer):
                 cons[key] = value
         return cons
 
+    @property
+    def multipliers(self):
+        mults = {}
+        for layer in self.layers:
+            for key, value in layer.multipliers.items():
+                if key in mults:
+                    raise Exception('Received multiple learning rate multipliers '
+                                    'for one weight tensor: ' + str(key))
+                mults[key] = value
+        return mults
+    
     @property
     def regularizers(self):
         regs = []
