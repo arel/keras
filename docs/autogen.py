@@ -133,6 +133,8 @@ PAGES = [
             core.Dense,
             core.Activation,
             core.Dropout,
+            core.SpatialDropout2D,
+            core.SpatialDropout3D,
             core.Flatten,
             core.Reshape,
             core.Permute,
@@ -150,6 +152,7 @@ PAGES = [
         'page': 'layers/convolutional.md',
         'classes': [
             convolutional.Convolution1D,
+            convolutional.AtrousConvolution1D,
             convolutional.Convolution2D,
             convolutional.AtrousConvolution2D,
             convolutional.SeparableConvolution2D,
